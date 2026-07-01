@@ -20,7 +20,7 @@ export default function App() {
 
         <div className="flex flex-1 overflow-hidden">
           {/* Left — Fixtures 38% */}
-          <div className="w-[38%] flex flex-col border-r border-rim overflow-hidden bg-panel/50">
+          <div className="w-[38%] flex flex-col border-r border-rim overflow-hidden bg-panel">
             <FixturesPanel
               apiBase={API_BASE}
               season={season}

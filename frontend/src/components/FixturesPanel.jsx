@@ -85,11 +85,16 @@ export default function FixturesPanel({ apiBase, season, onFixtureSelect }) {
             data-md={mdKey}
             onClick={() => handleTabClick(mdKey)}
             className={cn(
-              'shrink-0 px-3 py-2 font-mono text-[10px] tracking-wider transition-colors duration-150 border-b-2 cursor-pointer whitespace-nowrap',
+              'shrink-0 px-3 py-2 font-mono text-[10px] tracking-wider transition-all duration-150 border-b-2 cursor-pointer whitespace-nowrap',
               selectedMD === mdKey
                 ? 'text-accent border-accent'
                 : 'text-sub border-transparent hover:text-text'
             )}
+            style={
+              selectedMD === mdKey
+                ? { boxShadow: '0 3px 10px -2px rgba(16,224,160,0.5)' }
+                : undefined
+            }
           >
             GW{mdKey}
           </button>

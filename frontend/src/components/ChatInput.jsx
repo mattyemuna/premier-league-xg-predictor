@@ -2,8 +2,9 @@ import { useState, useRef, useEffect } from 'react'
 import { ArrowUp } from 'lucide-react'
 
 export default function ChatInput({ onSend, isLoading }) {
-  const [input, setInput] = useState('')
-  const textareaRef       = useRef(null)
+  const [input, setInput]         = useState('')
+  const [btnHovered, setBtnHover] = useState(false)
+  const textareaRef               = useRef(null)
 
   const resize = (el) => {
     el.style.height = 'auto'
@@ -37,6 +38,13 @@ export default function ChatInput({ onSend, isLoading }) {
 
   const canSend = input.trim().length > 0 && !isLoading
 
+  // Soft emerald outer glow when the button is enabled and hovered.
+  // Uses a two-layer shadow: a tight 1px ring + a wider diffuse bloom.
+  const btnShadow =
+    canSend && btnHovered
+      ? '0 0 0 1px rgba(16,224,160,0.45), 0 0 16px 4px rgba(16,224,160,0.22)'
+      : 'none'
+
   return (
     <div className="flex-shrink-0 border-t border-rim bg-base/90 backdrop-blur-sm p-3">
       <div className="flex items-end gap-2">
@@ -48,14 +56,17 @@ export default function ChatInput({ onSend, isLoading }) {
           placeholder="Type a matchup…"
           rows={1}
           disabled={isLoading}
-          className="flex-1 bg-card border border-rim rounded-xl px-4 py-2.5 text-[13px] text-text placeholder-sub/40 resize-none focus:outline-none focus:border-accent/40 transition-colors duration-150 disabled:opacity-50 leading-relaxed font-sans"
+          className="flex-1 bg-card border border-rim rounded-xl px-4 py-2.5 text-[13px] text-text placeholder-sub/40 resize-none overflow-hidden focus:outline-none focus:border-accent/40 transition-colors duration-150 disabled:opacity-50 leading-relaxed font-sans"
           style={{ minHeight: '40px', maxHeight: '120px' }}
         />
         <button
           onClick={submit}
+          onMouseEnter={() => setBtnHover(true)}
+          onMouseLeave={() => setBtnHover(false)}
           disabled={!canSend}
           aria-label="Send"
-          className="shrink-0 w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-150 cursor-pointer disabled:opacity-25 disabled:cursor-not-allowed bg-accent hover:bg-[#0DC98A] active:scale-95"
+          className="shrink-0 w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-200 cursor-pointer disabled:opacity-25 disabled:cursor-not-allowed bg-accent hover:bg-[#0DC98A] active:scale-95"
+          style={{ boxShadow: btnShadow, transition: 'box-shadow 0.2s ease, background-color 0.15s ease, transform 0.1s ease' }}
         >
           <ArrowUp size={15} className="text-base stroke-[2.5]" />
         </button>

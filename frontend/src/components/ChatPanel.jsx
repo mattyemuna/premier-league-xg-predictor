@@ -4,9 +4,14 @@ import TypingIndicator from './TypingIndicator'
 import ChatInput from './ChatInput'
 import EmptyState from './EmptyState'
 
+const reduced =
+  typeof window !== 'undefined' &&
+  window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
 export default function ChatPanel({ apiBase, pendingFixture, onFixtureConsumed }) {
   const [messages, setMessages]   = useState([])
   const [isLoading, setIsLoading] = useState(false)
+  const [glowPos, setGlowPos]     = useState(null)
   const bottomRef                 = useRef(null)
   const messagesRef               = useRef([])
   const sendRef                   = useRef(null)
@@ -60,12 +65,38 @@ export default function ChatPanel({ apiBase, pendingFixture, onFixtureConsumed }
     onFixtureConsumed()
   }, [pendingFixture, onFixtureConsumed])
 
+  const onMouseMove = useCallback((e) => {
+    if (reduced) return
+    const rect = e.currentTarget.getBoundingClientRect()
+    setGlowPos({ x: e.clientX - rect.left, y: e.clientY - rect.top })
+  }, [])
+
+  const onMouseLeave = useCallback(() => setGlowPos(null), [])
+
   const isEmpty = messages.length === 0 && !isLoading
 
   return (
-    <div className="flex flex-col h-full">
-      {/* Scrollable message area */}
-      <div className="flex-1 overflow-y-auto">
+    <div
+      className="relative flex flex-col h-full overflow-hidden"
+      onMouseMove={onMouseMove}
+      onMouseLeave={onMouseLeave}
+    >
+      {/* Panel-wide cursor spotlight — behind all content */}
+      {glowPos && (
+        <div
+          aria-hidden="true"
+          style={{
+            position: 'absolute',
+            inset: 0,
+            zIndex: 1,
+            pointerEvents: 'none',
+            background: `radial-gradient(circle 180px at ${glowPos.x}px ${glowPos.y}px, rgba(16,224,160,0.06), transparent 70%)`,
+          }}
+        />
+      )}
+
+      {/* Scrollable message area — above the spotlight */}
+      <div className="relative flex-1 overflow-y-auto" style={{ zIndex: 2 }}>
         {isEmpty ? (
           <div className="h-full">
             <EmptyState onSuggestion={sendMessage} />
@@ -81,7 +112,10 @@ export default function ChatPanel({ apiBase, pendingFixture, onFixtureConsumed }
         )}
       </div>
 
-      <ChatInput onSend={sendMessage} isLoading={isLoading} />
+      {/* Input bar — above the spotlight */}
+      <div className="relative" style={{ zIndex: 2 }}>
+        <ChatInput onSend={sendMessage} isLoading={isLoading} />
+      </div>
     </div>
   )
 }
